@@ -1,6 +1,3 @@
-"""
-CSV to database ingestion functions.
-"""
 from datetime import datetime, time
 from pathlib import Path
 from typing import List
@@ -12,27 +9,20 @@ from sqlalchemy.dialects.postgresql import insert
 from app.database.config import get_db_session
 from app.database.models import StoreStatus, MenuHours, StoreTimezone
 
-# Data file paths
 DATA_DIR = Path("files")
 DEFAULT_TIMEZONE = "America/Chicago"
 
-
 def ingest_all_data():
-    """
-    Ingest all CSV/Excel files into the database.
-    This should be run once to populate the database.
-    """
+
     print("Starting data ingestion...")
     
     session = get_db_session()
     try:
-        # Clear existing data (for clean re-ingestion)
         print("  Clearing existing data...")
         session.query(StoreStatus).delete()
         session.query(MenuHours).delete() 
         session.query(StoreTimezone).delete()
         
-        # Ingest each data source
         ingest_store_status(session)
         ingest_menu_hours(session)
         ingest_store_timezones(session)
@@ -49,7 +39,6 @@ def ingest_all_data():
 
 
 def ingest_store_status(session: Session):
-    """Ingest store status observations from Excel file (first 50k entries only)."""
     print("  Ingesting store status data (first 50k entries)...")
     
     file_path = DATA_DIR / "store_status.xlsx"
@@ -63,10 +52,10 @@ def ingest_store_status(session: Session):
     df["status"] = df["status"].astype(str).str.lower()
     df = df[df["status"].isin(["active", "inactive"])]
     
-    print(f"    Processing {len(df)} records in batches...")
+    print(f"Processing {len(df)} records in batches...")
     
     # Process in batches to avoid transaction size limits
-    batch_size = 1000  # Reasonable batch size for 50k records
+    batch_size = 1000 
     total_processed = 0
     
     for i in range(0, len(df), batch_size):
@@ -81,7 +70,6 @@ def ingest_store_status(session: Session):
                 "status": row["status"]
             })
         
-        # Bulk insert batch using PostgreSQL UPSERT
         if records:
             stmt = insert(StoreStatus).values(records)
             # Skip conflict handling for now to get data loaded
@@ -95,26 +83,21 @@ def ingest_store_status(session: Session):
 
 
 def ingest_menu_hours(session: Session):
-    """Ingest business hours from CSV file (first 50k entries)."""
     print("  Ingesting menu hours data (first 50k entries)...")
     
     file_path = DATA_DIR / "menu_hours.csv"
     df = pd.read_csv(file_path, nrows=50000)  # Limit to 50k rows
     df.columns = [c.strip() for c in df.columns]
     
-    # Handle different column name formats
     if "dayOfWeek" in df.columns:
         df = df.rename(columns={"dayOfWeek": "day_of_week"})
     
-    # Clean the data
     df = df.dropna(subset=["store_id", "day_of_week", "start_time_local", "end_time_local"]).copy()
     df["store_id"] = df["store_id"].astype(str)
     df["day_of_week"] = df["day_of_week"].astype(int)
     
-    # Convert to records
     records = []
     for _, row in df.iterrows():
-        # Parse time strings (handle different formats)
         start_time = _parse_time_string(row["start_time_local"])
         end_time = _parse_time_string(row["end_time_local"])
         
@@ -137,23 +120,19 @@ def ingest_menu_hours(session: Session):
 
 
 def ingest_store_timezones(session: Session):
-    """Ingest store timezones from CSV file (first 10k entries)."""
     print("  Ingesting timezone data (first 10k entries)...")
     
     file_path = DATA_DIR / "timezones.csv"
     df = pd.read_csv(file_path, nrows=10000)  # Limit to 10k rows
     df.columns = [c.strip() for c in df.columns]
     
-    # Handle different column name formats
     if "timezone" in df.columns and "timezone_str" not in df.columns:
         df = df.rename(columns={"timezone": "timezone_str"})
     
-    # Clean the data
     df = df.dropna(subset=["store_id"]).copy()
     df["store_id"] = df["store_id"].astype(str)
     df["timezone_str"] = df["timezone_str"].fillna(DEFAULT_TIMEZONE)
     
-    # Convert to records
     records = [
         {
             "store_id": row["store_id"],
@@ -162,7 +141,6 @@ def ingest_store_timezones(session: Session):
         for _, row in df.iterrows()
     ]
     
-    # Bulk insert
     if records:
         stmt = insert(StoreTimezone).values(records)
         # Skip conflict handling for now to avoid parameter limits  
@@ -187,7 +165,6 @@ def _parse_time_string(time_str: str) -> time:
         return None
 
 
-# CLI function for running ingestion
 if __name__ == "__main__":
     from app.database.config import create_tables
     

@@ -1,7 +1,3 @@
-"""
-Simple database configuration using Neon PostgreSQL (serverless).
-The connection string points to a cloud-hosted Neon database.
-"""
 import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -9,7 +5,6 @@ from dotenv import load_dotenv
 
 from app.database.models import Base
 
-# Load environment variables from .env file
 load_dotenv()
 
 # Neon PostgreSQL serverless database connection

@@ -1,6 +1,3 @@
-"""
-Simplified schemas - only what we actually need.
-"""
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal, Optional
@@ -12,7 +9,6 @@ class TriggerReportResponse(BaseModel):
 
 @dataclass 
 class ReportInfo:
-    """Simple report tracking info"""
     report_id: str
     status: Literal["running", "complete", "failed"]
     output_csv_path: Optional[Path] = None
@@ -20,7 +16,6 @@ class ReportInfo:
 
 
 class MenuHourRecord(BaseModel):
-    """Business hours for a store on a specific day"""
     store_id: str  # UUID string
     day_of_week: int  # 0=Monday .. 6=Sunday
     start_time_local: str  # HH:MM:SS
@@ -28,7 +23,6 @@ class MenuHourRecord(BaseModel):
 
 
 class WindowResult(BaseModel):
-    """Uptime/downtime results for a store across different time windows"""
     store_id: str  # UUID string
     uptime_minutes_1h: int
     downtime_minutes_1h: int

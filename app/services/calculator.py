@@ -1,7 +1,3 @@
-"""
-Simplified store uptime calculator.
-Much easier logic: count active vs inactive observations within time windows.
-"""
 from datetime import datetime, timedelta
 from typing import Dict, List
 

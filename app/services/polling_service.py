@@ -1,6 +1,3 @@
-"""
-Simple polling service - checks hourly for new data and generates reports.
-"""
 import asyncio
 from datetime import datetime, timezone, timedelta
 from sqlalchemy.orm import Session
@@ -10,7 +7,6 @@ from app.database.models import StoreStatus
 from app.services import report_service
 
 class SimplePollingService:
-    """Simple hourly polling to check for new data and generate reports."""
     
     def __init__(self):
         self.is_running = False
@@ -33,12 +29,10 @@ class SimplePollingService:
                 await asyncio.sleep(300)  # Wait 5 minutes before retry
     
     def stop_polling(self):
-        """Stop the polling loop."""
         self.is_running = False
         print("Stopping polling service...")
     
     async def _check_for_new_data(self):
-        """Check if new data has been added since last check."""
         session = get_db_session()
         try:
             current_time = datetime.now(timezone.utc)

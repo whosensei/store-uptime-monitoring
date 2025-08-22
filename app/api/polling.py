@@ -7,7 +7,6 @@ router = APIRouter()
 
 @router.post("/start_polling")
 async def start_polling(background_tasks: BackgroundTasks):
-    """Start hourly polling (checks for new data every hour)."""
     if polling_service.is_running:
         raise HTTPException(status_code=400, detail="Polling is already running")
     
@@ -18,7 +17,6 @@ async def start_polling(background_tasks: BackgroundTasks):
 
 @router.post("/stop_polling")
 def stop_polling():
-    """Stop hourly polling."""
     if not polling_service.is_running:
         raise HTTPException(status_code=400, detail="Polling is not running")
     
@@ -28,7 +26,6 @@ def stop_polling():
 
 @router.get("/status")
 def get_status():
-    """Get polling status."""
     return {
         "is_running": polling_service.is_running,
         "last_report_id": polling_service.last_report_id,
@@ -38,7 +35,6 @@ def get_status():
 
 @router.get("/last_report")
 def get_last_report():
-    """Get the last generated report info."""
     if not polling_service.last_report_id:
         return {"message": "No reports generated yet"}
     

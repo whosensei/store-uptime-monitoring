@@ -1,7 +1,3 @@
-"""
-SIMPLIFIED Data loader - database only, no mode selection.
-All data comes from PostgreSQL database.
-"""
 from typing import Dict, List, Tuple
 
 import pandas as pd
@@ -12,10 +8,7 @@ from app.models.schemas import MenuHourRecord
 
 
 def load_all_data() -> Tuple[pd.DataFrame, List[MenuHourRecord], Dict[int, str]]:
-    """
-    Load all data from database.
-    Returns: (status_df, menu_hours_list, timezone_dict)
-    """
+
     session = get_db_session()
     try:
         # Load store status as DataFrame
@@ -57,7 +50,6 @@ def load_all_data() -> Tuple[pd.DataFrame, List[MenuHourRecord], Dict[int, str]]
 
 
 def get_current_time_from_data(status_df: pd.DataFrame) -> pd.Timestamp:
-    """Get the 'current' time as the max timestamp in the data (per instructions)."""
     if len(status_df) == 0:
         return pd.Timestamp.now(tz='UTC')
     return status_df['timestamp_utc'].max()
