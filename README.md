@@ -1,4 +1,4 @@
-## Store Monitoring Backend (FastAPI) - Simplified & Clean
+## Store Monitoring Backend (FastAPI)
 
 This project implements the take‑home assignment described in `instructions.md`. It exposes two endpoints to trigger and retrieve a store uptime/downtime report computed from the provided datasets in the `files/` directory.
 

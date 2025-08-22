@@ -2,13 +2,20 @@
 Simple database configuration using Neon PostgreSQL (serverless).
 The connection string points to a cloud-hosted Neon database.
 """
+import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from dotenv import load_dotenv
 
 from app.database.models import Base
 
+# Load environment variables from .env file
+load_dotenv()
+
 # Neon PostgreSQL serverless database connection
-DATABASE_URL = "postgresql://neondb_owner:npg_HhsbAqQ3uio1@ep-polished-river-adfy94dl-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    raise ValueError("DATABASE_URL environment variable is not set. Please check your .env file.")
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(bind=engine)
 
